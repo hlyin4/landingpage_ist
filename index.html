@@ -170,7 +170,8 @@ error_reporting(0);
                 <div class="col-lg-4 Connect">
                     <h3 class="white">Let’s Connect</h3>
                     <div class="Connect-form">
-                        <form action="mail.php" method="post">
+                        <!-- <form action="mail.php" method="post"> -->
+                        <form id="submit_form" method="post">
                             <input type="text" id="name" name="Name" placeholder="Name" required>
                             <input type="email" id="email" name="Email" placeholder="Email" required>
                             <textarea id="subject" name="message" placeholder="Message" required></textarea>
@@ -233,10 +234,106 @@ error_reporting(0);
             });
         });
     </script>
+
 <?php 
 
 endif; ?>
 
+<script>
+document.getElementById('submit_form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+    var isValid = true;
+
+    // Clear previous error messages
+    var errorMessages = document.querySelectorAll('#submit_form .text-danger');
+    errorMessages.forEach(function (msg) {
+        msg.remove();
+    });
+
+    // Validate form fields and collect error messages
+    for (var pair of formData.entries()) {
+        if (!pair[1].trim()) { // trim() to ignore spaces
+            isValid = false;
+            var errorMessage = document.createElement('p');
+            errorMessage.classList.add('text-danger');
+            errorMessage.textContent = `Please fill out the ${pair[0]} field.`;
+            console.log(document.getElementById(pair[0]));
+            console.log((pair[0]));
+            document.querySelector(`[name="${pair[0]}"]`).insertAdjacentElement('afterend', errorMessage);        
+            }
+            if (pair[0] === 'Email') { // Check for valid email
+            var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(pair[1])) {
+                isValid = false;
+                var errorMessage = document.createElement('p');
+                errorMessage.classList.add('text-danger');
+                errorMessage.textContent = 'Please enter a valid email address.';
+                document.querySelector(`[name="${pair[0]}"]`).insertAdjacentElement('afterend', errorMessage);
+            }
+        }
+    }
+
+    if (isValid) {
+        fetch('https://hooks.zapier.com/hooks/catch/19127697/2ohvphi/', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            $.toast({
+                text: "Thanks for dropping us a line! We'll circle back with you in 48 hours tops. Stay awesome! Grey color background",
+                showHideTransition: 'fade',
+                allowToastClose: true,
+                hideAfter: 5000,
+                stack: 5,
+                position: 'top-right',
+                bgColor: '#444444',
+                textColor: '#eeeeee',
+                textAlign: 'left',
+                loader: false,
+                loaderBg: '#9EC600',
+                beforeShow: function () {},
+                afterShown: function () {},
+                beforeHide: function () {},
+                afterHidden: function () {
+                    setTimeout(function() {
+                        // Unset session logic (if any)
+                    }, 5000);
+                }
+            });
+            document.getElementById('submit_form').reset();
+        })
+        .catch(error => {
+            var errorMessage = document.createElement('p');
+            errorMessage.classList.add('text-danger');
+            errorMessage.textContent = 'There was an error sending your message.';
+            document.getElementById('submit_form').appendChild(errorMessage);
+            console.error('Error:', error);
+        });
+    }
+});
+
+
+    //   document.getElementById('submit_form1').addEventListener('submit', function (e) {
+    //      e.preventDefault();
+    //      var formData = new FormData(this);
+
+    //      fetch('https://hooks.zapier.com/hooks/catch/19097314/2ob8hc1/', {
+    //         method: 'POST',
+    //         body: formData
+    //      })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //            alert('Your message has been sent!');
+    //            document.getElementById('submit_form1').reset();
+    //         })
+    //         .catch(error => {
+    //            alert('There was an error sending your message.');
+    //            console.error('Error:', error);
+    //         });
+    //   });
+   </script>
 </body>
 
 </html>

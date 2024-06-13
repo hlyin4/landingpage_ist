@@ -18,16 +18,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail->isSMTP();
         $mail->Host     = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = '';
-        $mail->Password = '';
+        $mail->Username = 'sethuprasathm@gmail.com';
+        $mail->Password = 'hftppcuzbkbvuksr';
         $mail->SMTPSecure = 'tls';
         $mail->Port     = 587; 
 
-        $senderName = '';
-        $senderEmail = '';
+        $senderName = 'SethuPrasathm';
+        $senderEmail = 'sethuprasathm@gmail.com';
 
         $mail->setFrom($senderEmail, $senderName);
-        $mail->addAddress('');
+        $mail->addAddress('info@ist.app');
         $mail->isHTML(true);								 
         $mail->Subject = 'Contact Form Submission';
         $mail->Body = "
