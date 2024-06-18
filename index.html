@@ -28,7 +28,7 @@ error_reporting(0);
 
     <link rel="preload" href="fonts/NotoSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/NotoSans-Bold.woff2" as="font" type="font/woff2" crossorigin>
-
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
@@ -175,6 +175,7 @@ error_reporting(0);
                             <input type="text" id="name" name="Name" placeholder="Name" required>
                             <input type="email" id="email" name="Email" placeholder="Email" required>
                             <textarea id="subject" name="message" placeholder="Message" required></textarea>
+                            <div class="g-recaptcha" id="g-recaptcha" data-sitekey="6Lfj4_opAAAAAOu42n_QyKzOC739DYxFHpVc0PSq"></div>
                             <input type="submit" value="Submit" style=" cursor: pointer;">
                         </form>
                     </div>
@@ -255,12 +256,25 @@ document.getElementById('submit_form').addEventListener('submit', function (e) {
     for (var pair of formData.entries()) {
         if (!pair[1].trim()) { // trim() to ignore spaces
             isValid = false;
-            var errorMessage = document.createElement('p');
+            if(pair[0] == "g-recaptcha-response"){
+                var response = grecaptcha.getResponse();
+                if(response.length == 0){
+                var errorMessage = document.createElement('p');
+                errorMessage.classList.add('text-danger');
+                errorMessage.textContent = 'Please verify you are not a robot.';
+                document.getElementById('g-recaptcha').insertAdjacentHTML('afterend', errorMessage.outerHTML);
+            }
+            }else{
+                var errorMessage = document.createElement('p');
             errorMessage.classList.add('text-danger');
             errorMessage.textContent = `Please fill out the ${pair[0]} field.`;
             console.log(document.getElementById(pair[0]));
+            console.log("element name");
             console.log((pair[0]));
-            document.querySelector(`[name="${pair[0]}"]`).insertAdjacentElement('afterend', errorMessage);        
+            console.log("element name");
+            document.querySelector(`[name="${pair[0]}"]`).insertAdjacentElement('afterend', errorMessage);
+            }
+                   
             }
             if (pair[0] === 'Email') { // Check for valid email
             var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -273,6 +287,9 @@ document.getElementById('submit_form').addEventListener('submit', function (e) {
             }
         }
     }
+
+   // Check reCAPTCHA response
+ 
 
     if (isValid) {
         fetch('https://hooks.zapier.com/hooks/catch/19127697/2ohvphi/', {
@@ -303,6 +320,7 @@ document.getElementById('submit_form').addEventListener('submit', function (e) {
                 }
             });
             document.getElementById('submit_form').reset();
+            grecaptcha.reset(); 
         })
         .catch(error => {
             var errorMessage = document.createElement('p');
